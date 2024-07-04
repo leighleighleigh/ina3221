@@ -1,4 +1,4 @@
-use crate::registers::Register;
+use crate::registers::{AveragingMode, Register};
 use crate::{helpers, MaskEnableFlags, OperatingMode};
 use core::cell::RefCell;
 use hal::i2c::I2c;
@@ -265,6 +265,14 @@ where
             true => self.write_register(Register::Configuration, config | flag),
             false => self.write_register(Register::Configuration, config & !flag),
         }
+    }
+
+    /// Sets the averaging mode of the INA3221
+    /// This affects the number of samples taken before the average measurement is returned.
+    pub fn set_averaging_mode(&mut self, mode: AveragingMode) -> Result<(), E> {
+        let config = self.get_configuration()?;
+        let new_config = (config & 0b1111_0001_1111_1111) | ((mode as u16) << 9);
+        self.write_register(Register::Configuration, new_config)
     }
 
     /// Gets the shunt voltage of a specific monitoring channel

@@ -23,3 +23,16 @@ pub enum Register {
     ManufacturerId = 0xFE,
     DieId = 0xFF,
 }
+
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum AveragingMode{
+    Samples1 = 0b000,
+    Samples4 = 0b001,
+    Samples16 = 0b010,
+    Samples64 = 0b011,
+    Samples128 = 0b100,
+    Samples256 = 0b101,
+    Samples512 = 0b110,
+    Samples1024 = 0b111,
+}
