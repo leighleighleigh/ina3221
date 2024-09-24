@@ -1,5 +1,6 @@
-use crate::registers::{AveragingMode, Register};
-use crate::{helpers, MaskEnableFlags, OperatingMode};
+use crate::mode::ConversionTime;
+use crate::registers::Register;
+use crate::{helpers, MaskEnableFlags, OperatingMode, AveragingMode};
 use core::cell::RefCell;
 use hal::i2c::I2c;
 use ohms::Voltage;
@@ -271,9 +272,28 @@ where
     /// This affects the number of samples taken before the average measurement is returned.
     pub fn set_averaging_mode(&mut self, mode: AveragingMode) -> Result<(), E> {
         let config = self.get_configuration()?;
-        let new_config = (config & 0b1111_0001_1111_1111) | ((mode as u16) << 9);
+        let mode_bits = ((mode as u16) << 9) & 0b0000_1110_0000_0000;
+        let new_config = (config & 0b1111_0001_1111_1111) | mode_bits;
         self.write_register(Register::Configuration, new_config)
     }
+
+    /// Bus-voltage sample conversion time.
+    /// Higher values give better accuracy, at the expense of slower conversions.
+    pub fn set_bus_conversion_time(&mut self, mode: ConversionTime) -> Result<(), E> {
+        let config = self.get_configuration()?;
+        let mode_bits = ((mode as u16) << 6) & 0b0000_0001_1100_0000;
+        let new_config = (config & 0b1111_1110_0011_1111) | mode_bits;
+        self.write_register(Register::Configuration, new_config)
+    } 
+
+    /// Shunt-voltage sample conversion time.
+    /// Higher values give better accuracy, at the expense of slower conversions.
+    pub fn set_shunt_conversion_time(&mut self, mode: ConversionTime) -> Result<(), E> {
+        let config = self.get_configuration()?;
+        let mode_bits = ((mode as u16) << 3) & 0b0000_0000_0011_1000;
+        let new_config = (config & 0b1111_1111_1100_0111) | mode_bits;
+        self.write_register(Register::Configuration, new_config)
+    } 
 
     /// Gets the shunt voltage of a specific monitoring channel
     pub fn get_shunt_voltage(&self, channel: u8) -> Result<Voltage, E> {

@@ -17,5 +17,5 @@ mod registers;
 
 pub use driver::INA3221;
 pub use flags::MaskEnableFlags;
-pub use mode::OperatingMode;
+pub use mode::{OperatingMode,AveragingMode,ConversionTime};
 pub use ohms::*;
